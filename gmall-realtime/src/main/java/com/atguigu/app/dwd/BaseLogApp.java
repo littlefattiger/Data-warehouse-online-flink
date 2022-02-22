@@ -75,6 +75,7 @@ public class BaseLogApp {
                 });
         OutputTag<String> startTag = new OutputTag<String>("start"){};
         OutputTag<String> displayTag = new OutputTag<String>("display"){};
+
         SingleOutputStreamOperator<String> pageDS = jsonObjWithNewFlagDS.process(new ProcessFunction<JSONObject, String>() {
             @Override
             public void processElement(JSONObject value, ProcessFunction<JSONObject, String>.Context context, Collector<String> out) throws Exception {

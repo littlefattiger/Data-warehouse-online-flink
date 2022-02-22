@@ -15,17 +15,17 @@ public class FlinkCDC {
 
     public static void main(String[] args) throws Exception {
 
-        //1.获取执行环境
+
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(1);
 
-        //1.1 开启CK并指定状态后端为FS    memory  fs  rocksdb
-        env.setStateBackend(new FsStateBackend("hdfs://hadoop102:8020/gmall-flink-210325/ck"));
-        env.enableCheckpointing(5000L);
-        env.getCheckpointConfig().setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE);
-        env.getCheckpointConfig().setCheckpointTimeout(10000L);
-        env.getCheckpointConfig().setMaxConcurrentCheckpoints(2);
-        env.getCheckpointConfig().setMinPauseBetweenCheckpoints(3000);
+
+//        env.setStateBackend(new FsStateBackend("hdfs://hadoop102:8020/gmall-flink-210325/ck"));
+//        env.enableCheckpointing(5000L);
+//        env.getCheckpointConfig().setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE);
+//        env.getCheckpointConfig().setCheckpointTimeout(10000L);
+//        env.getCheckpointConfig().setMaxConcurrentCheckpoints(2);
+//        env.getCheckpointConfig().setMinPauseBetweenCheckpoints(3000);
 
         //env.setRestartStrategy(RestartStrategies.fixedDelayRestart());
 
@@ -36,7 +36,7 @@ public class FlinkCDC {
                 .username("root")
                 .password("111111")
                 .databaseList("gmall-210325-flink")
-                .tableList("gmall-210325-flink.base_trademark")   //如果不添加该参数,则消费指定数据库中所有表的数据.如果指定,指定方式为db.table
+                .tableList("gmall-210325-flink.base_trademark")
                 .deserializer(new StringDebeziumDeserializationSchema())
                 .startupOptions(StartupOptions.initial())
                 .build();

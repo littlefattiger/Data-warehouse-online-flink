@@ -36,7 +36,7 @@ public class FlinkCDC {
         DataStreamSource<String> streamSource = env.addSource(sourceFunction);
 
 
-//        streamSource.print();
+        streamSource.print();
         streamSource.addSink(MyKafkaUtil.getKafkaProducer(sinkTopic));
 
         //4.启动任务

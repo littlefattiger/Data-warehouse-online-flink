@@ -15,19 +15,19 @@
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-java</artifactId>
-            <version>1.12.0</version>
+            <version>1.12.7</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-streaming-java_2.12</artifactId>
-            <version>1.12.0</version>
+            <version>1.12.7</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-clients_2.12</artifactId>
-            <version>1.12.0</version>
+            <version>1.12.7</version>
         </dependency>
 
         <dependency>
@@ -39,7 +39,7 @@
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>5.1.49</version>
+            <version>5.1.37</version>
         </dependency>
 
         <dependency>
@@ -57,7 +57,7 @@
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-table-planner-blink_2.12</artifactId>
-            <version>1.12.0</version>
+            <version>1.12.7</version>
         </dependency>
     </dependencies>
 

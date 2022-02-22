@@ -15,31 +15,21 @@ import java.util.List;
 
 public class CustomerDeserialization implements DebeziumDeserializationSchema<String> {
 
-    /**
-     * 封装的数据格式
-     * {
-     * "database":"",
-     * "tableName":"",
-     * "before":{"id":"","tm_name":""....},
-     * "after":{"id":"","tm_name":""....},
-     * "type":"c u d",
-     * //"ts":156456135615
-     * }
-     */
+
     @Override
     public void deserialize(SourceRecord sourceRecord, Collector<String> collector) throws Exception {
 
-        //1.创建JSON对象用于存储最终数据
+
         JSONObject result = new JSONObject();
 
-        //2.获取库名&表名
+
         String topic = sourceRecord.topic();
         String[] fields = topic.split("\\.");
         String database = fields[1];
         String tableName = fields[2];
 
         Struct value = (Struct) sourceRecord.value();
-        //3.获取"before"数据
+
         Struct before = value.getStruct("before");
         JSONObject beforeJson = new JSONObject();
         if (before != null) {
@@ -51,7 +41,7 @@ public class CustomerDeserialization implements DebeziumDeserializationSchema<St
             }
         }
 
-        //4.获取"after"数据
+
         Struct after = value.getStruct("after");
         JSONObject afterJson = new JSONObject();
         if (after != null) {
@@ -63,14 +53,14 @@ public class CustomerDeserialization implements DebeziumDeserializationSchema<St
             }
         }
 
-        //5.获取操作类型  CREATE UPDATE DELETE
+
         Envelope.Operation operation = Envelope.operationFor(sourceRecord);
         String type = operation.toString().toLowerCase();
         if ("create".equals(type)) {
             type = "insert";
         }
 
-        //6.将字段写入JSON对象
+
         result.put("database", database);
         result.put("tableName", tableName);
         result.put("before", beforeJson);
