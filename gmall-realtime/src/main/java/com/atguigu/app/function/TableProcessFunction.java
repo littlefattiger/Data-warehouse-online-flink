@@ -116,6 +116,7 @@ public class TableProcessFunction extends BroadcastProcessFunction<JSONObject, S
         value.put("sinkTable", tableProcess.getSinkTable());
         String sinkType = tableProcess.getSinkType();
         if (TableProcess.SINK_TYPE_KAFKA.equals(sinkType)) {
+            System.out.println(value);
             out.collect(value);
         } else if (TableProcess.SINK_TYPE_HBASE.equals(sinkType)) {
             ctx.output(objectOutputTag, value);

@@ -6,6 +6,7 @@ import com.alibaba.ververica.cdc.connectors.mysql.MySQLSource;
 import com.alibaba.ververica.cdc.connectors.mysql.table.StartupOptions;
 import com.alibaba.ververica.cdc.debezium.DebeziumSourceFunction;
 import com.atguigu.app.function.CustomerDeserialization;
+import com.atguigu.app.function.DimSinkFunction;
 import com.atguigu.app.function.TableProcessFunction;
 import com.atguigu.bean.TableProcess;
 import com.atguigu.utils.MyKafkaUtil;
@@ -14,9 +15,14 @@ import org.apache.flink.api.common.state.MapStateDescriptor;
 import org.apache.flink.streaming.api.datastream.*;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.co.BroadcastProcessFunction;
+import org.apache.flink.streaming.connectors.kafka.KafkaSerializationSchema;
 import org.apache.flink.util.Collector;
 import org.apache.flink.util.OutputTag;
+import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.protocol.types.Field;
+
+import javax.annotation.Nullable;
+import java.nio.charset.StandardCharsets;
 
 public class BaseDBApp {
     public static void main(String[] args) throws Exception {
@@ -49,7 +55,7 @@ public class BaseDBApp {
                 .password("111111")
                 .databaseList("gmall-210325-realtime")
                 .tableList("gmall-210325-realtime.table_process")
-                .startupOptions(StartupOptions.latest())
+                .startupOptions(StartupOptions.initial())
                 .deserializer(new CustomerDeserialization())
                 .build();
         DataStreamSource<String> tableProcessStrDS = env.addSource(sourceFunction);
@@ -60,13 +66,25 @@ public class BaseDBApp {
 //broadcast stream is to setup the table info, to see which table is go to where
         BroadcastConnectedStream<JSONObject, String> connectedStream = jsonObjDS.connect(broadcastStream);
 //        System.out.println("done");
-        OutputTag<JSONObject> hbaseTag = new OutputTag<JSONObject>("hbase-tag"){};
+        OutputTag<JSONObject> hbaseTag = new OutputTag<JSONObject>("hbase-tag") {
+        };
         SingleOutputStreamOperator<JSONObject> kafka = connectedStream.process(new TableProcessFunction(hbaseTag, mapStateDescriptor));
 
         DataStream<JSONObject> hbase = kafka.getSideOutput(hbaseTag);
 
         hbase.print("hbase>>>>>>>>>>>");
         kafka.print("Kafka>>>>>>>>>>>");
+
+
+        hbase.addSink(new DimSinkFunction());
+        kafka.addSink(MyKafkaUtil.getKafkaProducer(new KafkaSerializationSchema<JSONObject>() {
+            @Override
+            public ProducerRecord<byte[], byte[]> serialize(JSONObject element, @Nullable Long aLong) {
+                return new ProducerRecord<byte[], byte[]>(element.getString("sinkTable"),
+                        element.getString("after").getBytes(StandardCharsets.UTF_8));
+            }
+        }));
+
         env.execute("BaseDBApp");
     }
 }
